@@ -15,7 +15,7 @@ try:
     # Streamlit Cloudのsecretsから読み込む場合
     # gcp_service_account は、Secretsに設定したセクション名です。
     # 例: [gcp_service_account]
-    gc = gspread.service_account_from_dict(st.secrets["gcp_service_account"])
+    gc = gspread.service_account_from_dict(st.secrets["service_account"])
     st.success("Google Sheets (Streamlit Secrets) 認証成功！")
 
 except KeyError:
