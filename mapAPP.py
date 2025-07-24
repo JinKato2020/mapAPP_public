@@ -7,23 +7,48 @@ from PIL import Image
 import gspread
 
 
-# --- Google Sheets 認証情報の読み込み (ローカル実行用) ---
-# service_account.json ファイルを直接読み込みます。
-# このファイルは app.py と同じディレクトリに配置してください。
-SERVICE_ACCOUNT_FILE = "manage-personal-map.json"
-
-if not os.path.exists(SERVICE_ACCOUNT_FILE):
-    st.error(f"認証情報ファイル '{SERVICE_ACCOUNT_FILE}' が見つかりません。")
-    st.error("Google Cloud Platformでサービスアカウントキーをダウンロードし、")
-    st.error(f"このファイルと同じディレクトリに '{SERVICE_ACCOUNT_FILE}' として保存してください。")
-    st.stop() # 認証情報がない場合はアプリを停止
-
+# --- Google Sheets 認証情報の読み込み ---
+# Streamlit Cloudのsecretsから認証情報を取得
+# st.secretsは、Streamlit CloudのSecrets管理機能で設定された情報を辞書として提供します。
+# secrets.tomlファイルの内容が自動的にst.secretsに読み込まれます。
 try:
-    gc = gspread.service_account(filename=SERVICE_ACCOUNT_FILE)
+    # Streamlit Cloudのsecretsから読み込む場合
+    # gcp_service_account は、Secretsに設定したセクション名です。
+    # 例: [gcp_service_account]
+    gc = gspread.service_account_from_dict(st.secrets["service_account"])
+
+except KeyError:
+    # ローカル環境でsecrets.tomlがない、またはSecretsが設定されていない場合のフォールバック
+    st.warning("Streamlit Secretsが見つかりませんでした。ローカルファイルまたは環境変数で認証を試みます。")
+    
+    # 開発環境（ローカル）での認証方法の選択
+    # 1. service_account.json ファイルから読み込む (ローカル開発用として推奨)
+    sa_file_path = "service_account.json"
+    if os.path.exists(sa_file_path):
+        try:
+            gc = gspread.service_account(filename=sa_file_path)
+            st.success("Google Sheets (Local file) 認証成功！")
+        except Exception as e:
+            st.error(f"ローカルファイル認証エラー: {e}")
+            st.stop() # エラーでアプリを停止
+    # 2. 環境変数からJSON文字列として読み込む (CI/CDなどでの利用も可能)
+    elif "GCP_SERVICE_ACCOUNT_JSON" in os.environ:
+        try:
+            json_key_str = os.environ.get("GCP_SERVICE_ACCOUNT_JSON")
+            json_key = json.loads(json_key_str)
+            gc = gspread.service_account_from_dict(json_key)
+            st.success("Google Sheets (Environment Variable) 認証成功！")
+        except Exception as e:
+            st.error(f"環境変数認証エラー: {e}")
+            st.stop() # エラーでアプリを停止
+    else:
+        st.error("認証情報が見つかりません。Streamlit Secrets、ローカルのservice_account.json、または環境変数のいずれかを設定してください。")
+        st.stop() # 認証情報がない場合はアプリを停止
 except Exception as e:
-    st.error(f"Google Sheets 認証エラー: {e}")
-    st.error("service_account.json ファイルの内容が正しいか、権限が適切か確認してください。")
-    st.stop() # 認証情報エラーの場合はアプリを停止
+    # その他の認証エラー
+    st.error(f"Google Sheets 認証中に予期せぬエラーが発生しました: {e}")
+    st.error("認証情報の形式が正しくないか、Google Cloudの権限に問題がある可能性があります。")
+    st.stop() # エラーでアプリを停止
 
 # スプレッドシート名 (あなたが作成したスプレッドシート名に変更してください)
 SPREADSHEET_NAME = "個人区域管理"
