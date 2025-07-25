@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
+from PIL import Image
 
 st.subheader("1. Line, Area, Bar Chart")
 
@@ -135,7 +136,7 @@ st.subheader("5. 画像表示 (st.image)")
 st.write("---")
 
 # URLからの画像表示
-image_url = "https://github.com/JinKato2020/mapAPP_public/pages/じろう.jpg"
+image_url = "https://https://github.com/JinKato2020/mapAPP_public/tree/main/pages/じろう.jpg"
 st.write("**URLからの画像**")
 st.image(image_url, caption="Streamlit Logo from URL", width=200)
 
