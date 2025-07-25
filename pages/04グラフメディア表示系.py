@@ -136,7 +136,7 @@ st.subheader("5. 画像表示 (st.image)")
 st.write("---")
 
 # URLからの画像表示
-image_url = "https://github.com/JinKato2020/mapAPP_public/tree/main/pages/じろう.jpg"
+image_url = "https://github.com/JinKato2020/mapAPP_public/blob/main/pages/%E3%81%98%E3%82%8D%E3%81%86.JPG"
 st.write("**URLからの画像**")
 st.image(image_url, caption="Streamlit Logo from URL", width=200)
 
