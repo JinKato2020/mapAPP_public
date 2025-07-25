@@ -1,3 +1,6 @@
+import streamlit as st
+import pandas as pd
+
 st.header("入力ウィジェット")
 if st.button("クリックしてください"):
     st.write("ボタンがクリックされました！")

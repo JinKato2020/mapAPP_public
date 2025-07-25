@@ -1,3 +1,6 @@
+import streamlit as st
+import pandas as pd
+
 @st.cache_data
 def load_data():
     time.sleep(2) # 時間がかかる処理をシミュレート
